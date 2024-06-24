@@ -34,12 +34,12 @@ namespace lox {
     }
     auto Ast_Printer::operator()(Box<Literal>& expr) -> std::string{\
         auto value = expr->m_value;
-        if(auto x = std::any_cast<std::string>(&value)){
-           return std::any_cast<std::string>(value);
+        if(std::holds_alternative<std::string>(value)){
+           return std::get<std::string>(value);
         }
 
-        if(auto x = std::any_cast<double>(&value)){
-            return std::to_string(std::any_cast<double>(value));
+        if(std::holds_alternative<double>(value)){
+            return std::to_string(std::get<double>(value));
         }
 
         return "nill";
@@ -53,28 +53,17 @@ namespace lox {
 // int main(){
 //     using namespace lox;
 //     Expr expression  = Box<Binary>{
-//         {
-//             Box<Unary>{
-//                 Unary{
-//                     Token{Token_Type::MINUS, "-", std::any{}, 1}
-//                     ,Box<Literal>{
-//                         Literal{
-//                             123
-//                         }
-//                     }
-//                 }
+//         Box<Unary>{
+//             Token(Token_Type::MINUS, "-", Object{}, 1),
+//             Box<Literal>{
+//                 123.0
 //             }
-//             ,Token{Token_Type::STAR, "*", std::any{}, 1}
-//             ,Box<Grouping>{
-//                 Grouping{
-//                     Box<Literal>{
-//                         Literal{
-//                             45.67
-//                         }
-//                     }
-//                 }
+//         }
+//         ,Token(Token_Type::STAR, "*", Object{}, 1)
+//         ,Box<Grouping>{
+//             Box<Literal>{
+//                 45.57
 //             }
-
 //         }
 //     };
 

@@ -9,7 +9,7 @@ namespace lox{
     Grouping::Grouping(Expr t_expression)
     :m_expression{t_expression} {}
 
-    Literal::Literal(std::any t_value)
+    Literal::Literal(Object t_value)
     :m_value{t_value} {}
 
     Unary::Unary(Token t_operator, Expr t_right)

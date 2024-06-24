@@ -1,12 +1,12 @@
 #include <sstream>
 #include <string> 
-#include <any>
+#include <variant>
 
 #include "token.hpp"
 #include "magic_enum.hpp"
 
 namespace lox{
-    Token::Token(Token_Type t_type, std::string const& t_lexume, std::any const& t_literal, int t_line )
+    Token::Token(Token_Type t_type, std::string const& t_lexume, Object const& t_literal, int t_line )
     :m_type{t_type}
     ,m_lexume{t_lexume}
     ,m_literal{t_literal}
@@ -15,9 +15,9 @@ namespace lox{
     auto Token::literal_to_string() const -> std::string{
         switch(m_type){
             case Token_Type::STRING:
-                return std::any_cast<std::string>(m_literal);
+                return std::get<std::string>(m_literal);
             case Token_Type::NUMBER:
-                return std::to_string(std::any_cast<double>(m_literal));
+                return std::to_string(std::get<double>(m_literal));
             default:
                 return "";
         }
@@ -38,7 +38,7 @@ namespace lox{
     auto Token::get_lexume() const -> std::string const&{
         return m_lexume;
     }
-    auto Token::get_literal() const -> std::any const&{
+    auto Token::get_literal() const -> Object const&{
         return m_literal;
     }
     auto Token::get_line() const -> int{

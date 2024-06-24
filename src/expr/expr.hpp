@@ -29,8 +29,8 @@ namespace lox {
     };
 
     struct Literal {
-        Literal(std::any t_value);
-        std::any m_value;
+        Literal(Object t_value);
+        Object m_value;
     };
 
     struct Unary {
