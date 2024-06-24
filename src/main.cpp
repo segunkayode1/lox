@@ -7,6 +7,7 @@
 #include "scanner.hpp"
 #include "parser.hpp"
 #include "ast_printer.hpp"
+#include "interpreter.hpp"
 
 namespace {
 	auto run(std::string const& source) -> void {
@@ -15,7 +16,10 @@ namespace {
 		if(lox::had_error) return;
 		auto parser  = lox::Parser(tokens);
 		auto ast = parser.parse();
-		std::cout << lox::Ast_Printer{}.print(ast) << '\n';
+		
+		// std::cout << lox::Ast_Printer{}.print(ast) << '\n';
+        static lox::Interpreter interpreter;
+		interpreter.interpret(ast);
 	}
 
 	auto run_file(std::string const& path) -> void{
@@ -24,6 +28,9 @@ namespace {
 		run(source);
 		if (lox::had_error){
 			std::exit(65);
+		}
+		if(lox::had_runtime_error){
+			std::exit(70);
 		}
 	}
 
