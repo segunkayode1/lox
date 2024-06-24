@@ -19,10 +19,10 @@ namespace lox{
         private:
         auto literal_to_string() const -> std::string;
 
-        Token_Type const m_type;
-        std::string const m_lexume;
-        std::any const m_literal;
-        int const m_line;
+        Token_Type m_type;
+        std::string m_lexume;
+        std::any m_literal;
+        int m_line;
     };
 };
 #endif
