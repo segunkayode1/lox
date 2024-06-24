@@ -1,5 +1,5 @@
 #include "parser.hpp"
-#include "expr/expr.hpp"
+#include "expr.hpp"
 #include "token_type.hpp"
 #include "error.hpp"
 

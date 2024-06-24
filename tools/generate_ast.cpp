@@ -114,7 +114,7 @@ auto generate_files(std::string const& output_dir, std::string const& base_name,
 
     filehpp <<  "#ifndef LOX_" + uppercase(base_name) + "_HPP\n"
                 "#define LOX_" + uppercase(base_name) + "_HPP\n"
-                "#include \"token.hpp\"\n"
+                "#include \"../token.hpp\"\n"
                 "#include \"box.hpp\"\n"
                 "\n"
                 "#include <memory>\n"
@@ -150,7 +150,7 @@ auto main(int argc, char** argv) -> int {
     generate_files(output_dir, "Expr",std::vector<std::string>{
         "Binary : Expr left, Token operator, Expr right",
         "Grouping : Expr expression",
-        "Literal : std::any value",
+        "Literal : Object value",
         "Unary : Token operator, Expr right"
     });
 }

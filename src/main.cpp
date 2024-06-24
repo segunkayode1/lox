@@ -6,7 +6,7 @@
 #include "error.hpp"
 #include "scanner.hpp"
 #include "parser.hpp"
-#include "expr/ast_printer.hpp"
+#include "ast_printer.hpp"
 
 namespace {
 	auto run(std::string const& source) -> void {
