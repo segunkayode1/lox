@@ -5,15 +5,17 @@
 
 #include "error.hpp"
 #include "scanner.hpp"
+#include "parser.hpp"
+#include "expr/ast_printer.hpp"
 
 namespace {
 	auto run(std::string const& source) -> void {
 		auto scanner = lox::Scanner(source);
 		auto tokens = scanner.scan_tokens();
-
-		for(auto token : tokens){
-			std::cout << token .to_string() << '\n';
-		}
+		if(lox::had_error) return;
+		auto parser  = lox::Parser(tokens);
+		auto ast = parser.parse();
+		std::cout << lox::Ast_Printer{}.print(ast) << '\n';
 	}
 
 	auto run_file(std::string const& path) -> void{

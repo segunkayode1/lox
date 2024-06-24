@@ -1,6 +1,6 @@
 #ifndef LOX_EXPR_HPP
 #define LOX_EXPR_HPP
-#include "token.hpp"
+#include "../token.hpp"
 #include "box.hpp"
 
 #include <memory>

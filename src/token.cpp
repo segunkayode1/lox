@@ -32,7 +32,7 @@ namespace lox{
         return ss.str();
     }
 
-    auto Token::get_token() const -> Token_Type{
+    auto Token::get_token_type() const -> Token_Type{
         return m_type;
     }
     auto Token::get_lexume() const -> std::string const&{

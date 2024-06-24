@@ -42,6 +42,10 @@ namespace lox {
             return std::to_string(std::get<double>(value));
         }
 
+        if(std::holds_alternative<bool>(value)){
+            return std::get<bool>(value) ? "true" : "false";
+        }
+
         return "nill";
     }
     auto Ast_Printer::operator()(Box<Unary>& expr) -> std::string{

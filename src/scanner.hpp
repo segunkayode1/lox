@@ -32,7 +32,7 @@ namespace lox{
         auto peek_next() -> char;
 
         auto add_token(Token_Type t_type) -> void;
-        auto add_token(Token_Type t_type, std::any t_literal) -> void;
+        auto add_token(Token_Type t_type, Object t_literal) -> void;
 
         auto match(char rune) -> bool;
 

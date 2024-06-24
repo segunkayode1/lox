@@ -13,4 +13,12 @@ namespace lox {
 	auto error(int line , std::string const& message) -> void{
 		report(line, "", message);
 	}
-}
+
+	auto error(Token token, std::string const& message) -> void{
+		if(token.get_token_type() == Token_Type::END_OF_FILE){
+			report(token.get_line(), " at end ", message);
+		}else{
+			report(token.get_line(), " at '" + token.get_lexume() + "'", message);
+		}
+	}
+};

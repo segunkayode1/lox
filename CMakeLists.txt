@@ -1,20 +1,24 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(lox VERSION 0.1)
+project(lox 
+	LANGUAGES CXX
+	VERSION 0.1
+	)
+
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(lox 
-			  src/main.cpp
-			  src/scanner.cpp 
-			  src/token.cpp 
-			  src/error.cpp
-			  )
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_subdirectory(src)
 
 
-target_include_directories(lox PUBLIC
-						   "${PROJECT_SOURCE_DIR}/src")
+
+
+
+
+
 
 
 

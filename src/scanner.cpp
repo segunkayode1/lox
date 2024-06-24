@@ -30,10 +30,10 @@ namespace lox{
     }
 
     auto Scanner::add_token(Token_Type t_type) -> void{
-        add_token(t_type, std::any{});
+        add_token(t_type, Object{});
     }
 
-    auto Scanner::add_token(Token_Type t_type, std::any t_literal) -> void{
+    auto Scanner::add_token(Token_Type t_type, Object t_literal) -> void{
         auto text = m_source.substr(m_start, m_current - m_start);
         m_tokens.emplace_back(t_type, text, t_literal, m_line);
     }
@@ -115,7 +115,7 @@ namespace lox{
             m_start = m_current;
             scan_token();
         }
-        m_tokens.emplace_back(Token_Type::END_OF_FILE, "", std::any{}, m_line);
+        m_tokens.emplace_back(Token_Type::END_OF_FILE, "", Object{}, m_line);
         return m_tokens;
     }
 
@@ -134,7 +134,7 @@ namespace lox{
         //consume last "
         advance();
 
-        add_token(Token_Type::STRING, std::any{value});
+        add_token(Token_Type::STRING, Object{value});
     }
 
     auto Scanner::number() -> void{
