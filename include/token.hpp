@@ -6,7 +6,7 @@
 
 #include "token_type.hpp"
 namespace lox{
-    using Object = std::variant<double,bool,std::string, std::monostate>;
+    using Object = std::variant<std::monostate, double,bool,std::string>;
     class Token{    
         public:
         Token(Token_Type t_type, std::string const& t_lexume, Object const& t_literal, int t_line );

@@ -47,7 +47,7 @@ namespace lox{
     
 
     auto Parser::assginment() -> Expr{
-        auto expr  = equality();
+        auto expr  = logical_or();
 
         if(match(Token_Type::EQUAL)){
             auto equals = previous();
@@ -60,6 +60,25 @@ namespace lox{
             error(equals, "Invalid assigment target.");
         }
 
+        return expr;
+    }
+
+    auto Parser::logical_or() -> Expr{
+        auto expr = logical_and();
+        while(match(Token_Type::OR)){
+            auto op = previous();
+            auto right = logical_and();
+            expr = Box<Logical>{expr, op, right};
+        }
+        return expr;
+    }
+    auto Parser::logical_and() -> Expr{
+        auto expr = equality();
+        while(match(Token_Type::AND)){
+            auto op = previous();
+            auto right = equality();
+            expr = Box<Logical>{expr, op, right};
+        }
         return expr;
     }
 
@@ -164,7 +183,12 @@ namespace lox{
     }
 
     auto Parser::statement() -> Stmt {
+        if(match(Token_Type::FOR)) return for_statement();
+        if(match(Token_Type::IF)) return if_statement();
         if(match(Token_Type::PRINT)) return print_statement();
+        if(match(Token_Type::WHILE)) return while_statement();
+        if(match(Token_Type::LEFT_BRACE))return block_statement();
+
         return expression_statement();
     }
 
@@ -199,10 +223,6 @@ namespace lox{
             if(match(Token_Type::VAR)){
                 return var_declaration();
             }
-            if(match(Token_Type::LEFT_BRACE)){
-                return block_statement();
-            }
-
             return statement();
         }catch(Parser_Error err){
             synchronize();
@@ -244,6 +264,79 @@ namespace lox{
         return Box<Block>{statements};
     }
 
+    auto Parser::if_statement() -> Stmt{
+        consume(Token_Type::LEFT_PAREN, "Expected '(' after if");
+        auto const expr = expression();
+        consume(Token_Type::RIGHT_PAREN, "Expected ')' after if condition");
+        auto const then_branch = statement();
+        auto else_branch = Stmt{};
+        if(match(Token_Type::ELSE)){
+            else_branch = statement();
+        }
+
+        return Box<If>{expr, then_branch, else_branch};
+    }
+
+    auto Parser::while_statement() -> Stmt{
+         consume(Token_Type::LEFT_PAREN, "Expected '(' after while");
+         auto const expr = expression();
+         consume(Token_Type::RIGHT_PAREN, "Expected ')' after while condition");
+         auto const body = statement();
+         return Box<While>{expr, body};
+    }
+
+    auto Parser::for_statement() -> Stmt{
+        using enum Token_Type;
+        consume(Token_Type::LEFT_PAREN, "Expected '(' after while");
+        auto intitialiser = Stmt{};
+        if(match(VAR)){
+            intitialiser = var_declaration();
+        }else if(!match(SEMICOLON)){
+            intitialiser = expression_statement();
+        }
+        auto condition = Expr{};
+        if(!check(SEMICOLON)){
+            condition = expression();
+        }
+
+        consume(SEMICOLON, "Expected ';' after loop condition");
+
+        auto increment = Expr{};
+        if(!check(RIGHT_PAREN)){
+            increment = expression();
+        }
+
+
+        consume(RIGHT_PAREN, "Expected ')' after  for clauses");
+        Stmt body = statement();
+        if(not std::holds_alternative<Expr_Monostate>(increment)){
+            std::vector<Stmt> statements;
+            statements.push_back(body);
+            statements.push_back(Box<Expression>(increment));
+            body = Box<Block>{
+                statements
+            };
+        }
+
+        if(std::holds_alternative<Expr_Monostate>(increment)){
+            condition = Box<Literal>{true};
+        }
+
+        body = Box<While>{condition, body};
+
+        if(not std::holds_alternative<Stmt_Monostate>(intitialiser)){
+            std::vector<Stmt> statements;
+            statements.push_back(intitialiser);
+            statements.push_back(body);
+            body = Box<Block>{
+                statements
+            };
+        }
+
+        return body;
+    }
+
+
     auto Parser::parse() -> std::vector<Stmt>{
         auto statements = std::vector<Stmt>{};
         while(!is_at_end()){
@@ -251,8 +344,6 @@ namespace lox{
         }
         return statements;
     }
-
-
     
     
 };

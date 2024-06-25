@@ -11,6 +11,7 @@ namespace lox {
         auto operator()(Box<Unary>& expr) -> std::string;
         auto operator()(Box<Variable>& expr) -> std::string;
         auto operator()(Box<Assign>& expr) -> std::string;
+        auto operator()(Box<Logical>& expr) -> std::string;
         private:
         template<typename... T>
         auto parenthisize(std::string name, T... exprs) -> std::string;

@@ -23,4 +23,9 @@ namespace lox{
     :m_name{t_name}
     ,m_value{t_value} {}
 
+    Logical::Logical(Expr t_left, Token t_operator, Expr t_right)
+    :m_left{t_left}
+    ,m_operator{t_operator}
+    ,m_right{t_right} {}
+
 };

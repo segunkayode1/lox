@@ -60,6 +60,10 @@ namespace lox {
         return parenthisize(expr->m_name.get_lexume(), expr->m_value);
      }
 
+    auto Ast_Printer::operator()(Box<Logical>& expr) -> std::string{
+        return parenthisize(expr->m_operator.get_lexume(), expr->m_left, expr->m_right);
+    }
+
 }
 
 

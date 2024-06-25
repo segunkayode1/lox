@@ -14,13 +14,15 @@ namespace lox {
     struct Unary;
     struct Variable;
     struct Assign;
+    struct Logical;
     using Expr = std::variant<Expr_Monostate
                              ,Box<Binary>
                              ,Box<Grouping>
                              ,Box<Literal>
                              ,Box<Unary>
                              ,Box<Variable>
-                             ,Box<Assign>>;
+                             ,Box<Assign>
+                             ,Box<Logical>>;
     struct Expr_Monostate : public std::monostate{
         using std::monostate::monostate;
     };
@@ -57,6 +59,13 @@ namespace lox {
         Assign(Token t_name, Expr t_value);
         Token m_name;
         Expr m_value;
+    };
+
+    struct Logical {
+        Logical(Expr t_left, Token t_operator, Expr t_right);
+        Expr m_left;
+        Token m_operator;
+        Expr m_right;
     };
 
 };

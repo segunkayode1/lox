@@ -233,6 +233,32 @@ namespace lox{
         enviroment = enviroment->get_parent();
     }
 
+     auto Interpreter::operator()(Box<If>& stmt) -> void{
+        if(truthy(evaluate(stmt->m_condition))){
+            execute(stmt->m_thenBranch);
+        }else{
+            execute(stmt->m_elseBranch);
+        }
+     }
+
+    auto Interpreter::operator()(Box<Logical>& expr) -> Object{
+        auto left = evaluate(expr->m_left);
+        if(expr->m_operator.get_token_type()== Token_Type::AND){
+            if(!truthy(left)) return left;
+        }else {
+            if(truthy(left)) return left;
+        }
+        return evaluate(expr->m_right);
+    }
+
+    auto Interpreter::operator()(Box<While>& stmt) -> void{
+        while(truthy(evaluate(stmt->m_condition))){
+            execute(stmt->m_body);
+        }
+    }
+
+
+
     Interpreter::Interpreter()
     :enviroment{std::make_unique<Enviroment>()} {}
 }

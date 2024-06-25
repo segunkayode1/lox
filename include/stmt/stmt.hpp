@@ -14,11 +14,15 @@ namespace lox {
     struct Print;
     struct Var;
     struct Block;
+    struct If;
+    struct While;
     using Stmt = std::variant<Stmt_Monostate
                              ,Box<Expression>
                              ,Box<Print>
                              ,Box<Var>
-                             ,Box<Block>>;
+                             ,Box<Block>
+                             ,Box<If>
+                             ,Box<While>>;
     struct Stmt_Monostate : public std::monostate{
         using std::monostate::monostate;
     };
@@ -42,6 +46,19 @@ namespace lox {
     struct Block {
         Block(std::vector<Stmt> t_statements);
         std::vector<Stmt> m_statements;
+    };
+
+    struct If {
+        If(Expr t_condition, Stmt t_thenBranch, Stmt t_elseBranch);
+        Expr m_condition;
+        Stmt m_thenBranch;
+        Stmt m_elseBranch;
+    };
+
+    struct While {
+        While(Expr t_condition, Stmt t_body);
+        Expr m_condition;
+        Stmt m_body;
     };
 
 };

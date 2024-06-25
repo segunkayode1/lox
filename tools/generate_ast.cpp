@@ -158,13 +158,17 @@ auto main(int argc, char** argv) -> int {
         "Literal : Object value",
         "Unary : Token operator, Expr right",
         "Variable : Token name",
-        "Assign : Token name, Expr value"
+        "Assign : Token name, Expr value",
+        "Logical : Expr left, Token operator, Expr right"
     });
 
     generate_files(output_dir, "Stmt", std::vector<std::string>{
        "Expression : Expr expression",
        "Print : Expr expression",
        "Var : Token name, Expr initializer",
-       "Block : std::vector<Stmt> statements"
+       "Block : std::vector<Stmt> statements",
+       "If : Expr condition, Stmt thenBranch," 
+       " Stmt elseBranch",
+       "While : Expr condition, Stmt body"
     });
 }

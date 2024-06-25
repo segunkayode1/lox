@@ -24,6 +24,9 @@ namespace lox{
         auto operator()(Box<Var>& Stmt) -> void;
         auto operator()(Box<Assign>& expr) -> Object;
         auto operator()(Box<Block>& stmt) -> void;
+        auto operator()(Box<If>& stmt) -> void;
+        auto operator()(Box<Logical>& expr) -> Object;
+        auto operator()(Box<While>& stmt) -> void;
         private:
         std::unique_ptr<Enviroment> enviroment;
     };

@@ -16,6 +16,8 @@ namespace lox{
         int m_current;
         auto expression() -> Expr;
         auto assginment() -> Expr;
+        auto logical_or() -> Expr;
+        auto logical_and() -> Expr;
         auto equality() -> Expr;
         auto comparison() -> Expr;
         auto term() -> Expr;
@@ -42,10 +44,13 @@ namespace lox{
 
         auto statement() -> Stmt;
         auto print_statement() -> Stmt;
+        auto while_statement() -> Stmt;
+        auto for_statement() -> Stmt;
         auto expression_statement() -> Stmt;
         auto block_statement() -> Stmt;
         auto declaration() -> Stmt;
         auto var_declaration() -> Stmt;
+        auto if_statement() -> Stmt;
         auto synchronize() -> void;
     };
 };
