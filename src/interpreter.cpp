@@ -4,6 +4,7 @@
 #include "interpreter.hpp"
 #include "token.hpp"
 #include "error.hpp"
+#include "stmt.hpp"
 
 namespace lox{
 
@@ -26,20 +27,28 @@ namespace lox{
         return "nil";
     }
 
-    auto Interpreter::interpret(Expr expr) -> void{
+    auto Interpreter::interpret(std::vector<Stmt> statements) -> void{
         try{
-            Object o = evaluate(expr);
-            std::cout << to_string_object(o) << '\n';
+            for(auto statement: statements){
+                execute(statement);
+            }
         }catch(Runtime_Error& err){
             runtime_error(err);
         }
     }
+
+    auto Interpreter::execute(Stmt stmt) -> void{
+         std::visit(*this,stmt);
+    }
+
     auto Interpreter::evaluate(Expr expr) -> Object{
          return std::visit(*this,expr);
     }
-    auto Interpreter::operator()(std::monostate /*unused*/) -> Object{
+    auto Interpreter::operator()(Expr_Monostate /*unused*/) -> Object{
           return {};
     }
+
+    auto Interpreter::operator()(Stmt_Monostate /*unused*/) -> void {}
 
     auto is_equal(Object const& left, Object const& right){
         auto both_numbers = std::holds_alternative<double>(left) and std::holds_alternative<double>(right);
@@ -171,12 +180,21 @@ namespace lox{
         return true;
     }
 
+    auto Interpreter::operator()(Box<Var>& stmt) -> void {
+        Object value = evaluate(stmt->m_initializer);
+        enviroment->define(stmt->m_name.get_lexume(), value);
+    };
+
+    auto Interpreter::operator()(Box<Variable>& expr) -> Object {
+        return enviroment->get(expr->m_name);
+    };
+
     auto Interpreter::operator()(Box<Unary>& expr) -> Object{
         auto value = evaluate(expr->m_right);
         switch(expr->m_operator.get_token_type()){
             case Token_Type::MINUS:
                 if(not std::holds_alternative<double>(value)){
-                    throw Runtime_Error{expr->m_operator, "operand has to a number" };
+                    throw Runtime_Error{expr->m_operator, "operand has to be a number" };
                 }
                 return std::get<double>(value) * -1;
             case Token_Type::BANG:
@@ -186,4 +204,35 @@ namespace lox{
         }
     }
 
+
+    auto Interpreter::operator() (Box<Print>& stmt) -> void{
+        Object value = evaluate(stmt->m_expression);
+        std::cout << to_string_object(value) << '\n';
+    }
+
+    auto Interpreter::operator() (Box<Expression>& stmt) -> void{
+        evaluate(stmt->m_expression);
+    }
+
+    auto Interpreter::operator()(Box<Assign>& expr) -> Object{
+        auto value = evaluate(expr->m_value);
+        enviroment->assign(expr->m_name, value);
+        return value;
+    }
+
+    auto Interpreter::operator()(Box<Block>& stmt) -> void{
+        enviroment = std::make_unique<Enviroment>(std::move(enviroment));
+        try{
+            for(auto statement: stmt->m_statements){
+                execute(statement);
+            }
+        }catch (Runtime_Error& err){
+            enviroment = enviroment->get_parent();
+            throw err;
+        }
+        enviroment = enviroment->get_parent();
+    }
+
+    Interpreter::Interpreter()
+    :enviroment{std::make_unique<Enviroment>()} {}
 }

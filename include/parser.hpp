@@ -3,17 +3,19 @@
 
 #include <vector>
 
-#include "expr/expr.hpp"
+#include "expr.hpp"
+#include "stmt.hpp"
 
 namespace lox{
     class Parser{
         public:
         Parser(std::vector<Token> t_tokens);
-        auto parse() -> Expr;
+        auto parse() -> std::vector<Stmt>;
         private:
         std::vector<Token> m_tokens;
         int m_current;
         auto expression() -> Expr;
+        auto assginment() -> Expr;
         auto equality() -> Expr;
         auto comparison() -> Expr;
         auto term() -> Expr;
@@ -29,6 +31,7 @@ namespace lox{
         auto peek() -> Token;
         auto is_at_end() -> bool;
         auto consume(Token_Type type, std::string const& err_message) -> Token;
+
         
         class Parser_Error : public std::runtime_error{
             public:
@@ -36,6 +39,14 @@ namespace lox{
         };
 
         auto error(Token token, std::string const& message) -> Parser_Error;
+
+        auto statement() -> Stmt;
+        auto print_statement() -> Stmt;
+        auto expression_statement() -> Stmt;
+        auto block_statement() -> Stmt;
+        auto declaration() -> Stmt;
+        auto var_declaration() -> Stmt;
+        auto synchronize() -> void;
     };
 };
 

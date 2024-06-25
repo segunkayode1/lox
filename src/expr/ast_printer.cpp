@@ -21,7 +21,7 @@ namespace lox {
     auto Ast_Printer::print(Expr& expr) -> std::string{
         return std::visit(*this, expr);
     }
-    auto Ast_Printer::operator()(std::monostate /*unused*/) -> std::string{
+    auto Ast_Printer::operator()(Expr_Monostate /*unused*/) -> std::string{
         return {};
     }
 
@@ -32,7 +32,7 @@ namespace lox {
     auto Ast_Printer::operator()(Box<Grouping>& expr) -> std::string{
         return parenthisize("group", expr->m_expression);
     }
-    auto Ast_Printer::operator()(Box<Literal>& expr) -> std::string{\
+    auto Ast_Printer::operator()(Box<Literal>& expr) -> std::string{
         auto value = expr->m_value;
         if(std::holds_alternative<std::string>(value)){
            return std::get<std::string>(value);
@@ -51,6 +51,15 @@ namespace lox {
     auto Ast_Printer::operator()(Box<Unary>& expr) -> std::string{
         return parenthisize(expr->m_operator.get_lexume(), expr->m_right);
     }
+
+    auto Ast_Printer::operator()(Box<Variable>& expr) -> std::string{
+        return expr->m_name.get_lexume();
+    }
+
+     auto Ast_Printer::operator()(Box<Assign>& expr) -> std::string{
+        return parenthisize(expr->m_name.get_lexume(), expr->m_value);
+     }
+
 }
 
 

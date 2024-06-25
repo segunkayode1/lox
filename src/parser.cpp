@@ -2,6 +2,7 @@
 #include "expr.hpp"
 #include "token_type.hpp"
 #include "error.hpp"
+#include "stmt.hpp"
 
 namespace lox{
     Parser::Parser(std::vector<Token> t_tokens)
@@ -40,7 +41,26 @@ namespace lox{
         return peek().get_token_type() == Token_Type::END_OF_FILE;
     }
     auto Parser::expression() -> Expr{
-        return equality();
+        return assginment();
+    }
+
+    
+
+    auto Parser::assginment() -> Expr{
+        auto expr  = equality();
+
+        if(match(Token_Type::EQUAL)){
+            auto equals = previous();
+            auto value = assginment();
+            if(std::holds_alternative<Box<Variable>>(expr)){
+                auto& var = std::get<Box<Variable>>(expr);
+                return Box<Assign>{var->m_name, value};
+            }
+
+            error(equals, "Invalid assigment target.");
+        }
+
+        return expr;
     }
 
     auto Parser::consume(Token_Type type, std::string const& err_message) -> Token{
@@ -122,13 +142,17 @@ namespace lox{
             return Box<Literal>{false};
         }
         if(match(NIL)){
-            return Expr{};
+            return Box<Literal>{Object{}};
         }
 
         if(match(LEFT_PAREN)){
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after expression");
             return Box<Grouping>(expr);
+        }
+
+        if(match(IDENTIFIER)){
+            return Box<Variable>(previous());
         }
 
         throw error(peek(), "Expected expression");
@@ -139,13 +163,96 @@ namespace lox{
         return Parser_Error{message};
     }
 
-    auto Parser::parse() -> Expr{
+    auto Parser::statement() -> Stmt {
+        if(match(Token_Type::PRINT)) return print_statement();
+        return expression_statement();
+    }
+
+    auto Parser::expression_statement() -> Stmt{
+        auto expr = expression();
+        consume(Token_Type::SEMICOLON, "Expected ';' after expression" );
+        return Box<Expression>{expr};
+    }
+  
+    auto Parser::print_statement() -> Stmt{
+        auto expr = expression();
+        consume(Token_Type::SEMICOLON, "Expected ';' after value");
+        return Box<Print>{expr};
+    }
+
+    auto Parser::var_declaration() -> Stmt{
+        Token name = consume(Token_Type::IDENTIFIER, "Expected variable name.");
+
+        Expr Initialiser{};
+
+        if(match(Token_Type::EQUAL)){
+            Initialiser = expression();
+        }
+
+        consume(Token_Type::SEMICOLON, "Expected '; after variable declaration");
+
+        return Box<Var>{name, Initialiser};
+    }
+
+    auto Parser::declaration() -> Stmt{
         try{
-            return expression();
-        }catch(Parser_Error error){
-            return Expr{};
+            if(match(Token_Type::VAR)){
+                return var_declaration();
+            }
+            if(match(Token_Type::LEFT_BRACE)){
+                return block_statement();
+            }
+
+            return statement();
+        }catch(Parser_Error err){
+            synchronize();
+            return Stmt{};
         }
     }
 
+    auto Parser::synchronize() -> void{
+        advance();
+
+        using enum Token_Type;
+        while(not is_at_end()){
+            if(previous().get_token_type() == SEMICOLON) return;
+
+            switch(peek().get_token_type()){
+                case CLASS:
+                case FUN:
+                case VAR:
+                case FOR:
+                case IF:
+                case WHILE:
+                case PRINT:
+                case RETURN:
+                return;
+                default:
+                break;
+            }
+
+            advance();
+        }
+    }
+
+    auto Parser::block_statement() -> Stmt{
+        std::vector<Stmt> statements;
+        while(not is_at_end() and not check(Token_Type::RIGHT_BRACE)){
+            statements.push_back(declaration());
+        }
+        consume(Token_Type::RIGHT_BRACE, "Expected '}' after block");
+        return Box<Block>{statements};
+    }
+
+    auto Parser::parse() -> std::vector<Stmt>{
+        auto statements = std::vector<Stmt>{};
+        while(!is_at_end()){
+            statements.push_back(declaration());
+        }
+        return statements;
+    }
+
+
+    
     
 };

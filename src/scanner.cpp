@@ -64,7 +64,7 @@ namespace lox{
             case '.': add_token(DOT); break;
             case '-': add_token(MINUS); break;
             case '+': add_token(PLUS); break;
-            case ':': add_token(SEMICOLON); break;
+            case ';': add_token(SEMICOLON); break;
             case '*': add_token(STAR); break;
             case '!': 
                 add_token(match('=') ? BANG_EQUAL : BANG);

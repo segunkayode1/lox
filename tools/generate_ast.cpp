@@ -67,7 +67,7 @@ auto print_class(std::ostream& os, line l){
     os << "    };\n\n";
 }
 auto print_variant_declaration(std::string const& base_name , std::ostream& filehpp,std::vector<line> lines) -> void{
-    filehpp << "    using " <<  base_name << " = std::variant<std::monostate\n";
+    filehpp << "    using " <<  base_name << " = std::variant<" << base_name << "_Monostate\n";
     for(int i = 0; i < lines.size() -1 ; i++){
         filehpp << "                             ,Box<" << lines[i].m_class << ">\n";
     } 
@@ -109,23 +109,27 @@ auto lowercase(std::string word) -> std::string{
 }
 
 auto generate_files(std::string const& output_dir, std::string const& base_name, std::vector<std::string> str_input) -> void{
-    auto filehpp = std::ofstream{output_dir + "/" + lowercase(base_name) + ".hpp"};
+    auto filehpp = std::ofstream{output_dir + "/include/" + lowercase(base_name) + "/" + lowercase(base_name) + ".hpp"};
     std::vector<line> lines = generate(str_input);
 
     filehpp <<  "#ifndef LOX_" + uppercase(base_name) + "_HPP\n"
                 "#define LOX_" + uppercase(base_name) + "_HPP\n"
-                "#include \"../token.hpp\"\n"
+                "#include \"token.hpp\"\n"
                 "#include \"box.hpp\"\n"
                 "\n"
                 "#include <memory>\n"
                 "#include <variant>\n"
                 "\n"
                 "namespace lox {\n";
-
+    filehpp << "    struct "<< base_name << "_Monostate;\n";
     for(auto [m_class, types]: lines){
-        filehpp << "    class "<< m_class << ";\n";
+        filehpp << "    struct "<< m_class << ";\n";
     }
     print_variant_declaration(base_name, filehpp, lines);
+
+    filehpp << "    struct "<< base_name << "_Monostate : public std::monostate{\n"
+               "        using std::monostate::monostate;\n"
+               "    };\n\n";
 
     std::for_each(lines.begin(), lines.end(), [&](auto const& l){
         print_class(filehpp, l);
@@ -134,7 +138,7 @@ auto generate_files(std::string const& output_dir, std::string const& base_name,
     filehpp <<  "};\n"
                 "#endif";
     
-    auto filecpp = std::ofstream{output_dir + "/" + lowercase(base_name) + ".cpp"};
+    auto filecpp = std::ofstream{output_dir + "/src/" + lowercase(base_name) + "/" + lowercase(base_name) + ".cpp"};
     filecpp << "#include \"" + lowercase(base_name) + ".hpp\"\n\n";
     filecpp << "namespace lox{\n";
     
@@ -147,10 +151,20 @@ auto generate_files(std::string const& output_dir, std::string const& base_name,
 
 auto main(int argc, char** argv) -> int {
     auto const output_dir = std::string(argv[1]);
+    //exprs
     generate_files(output_dir, "Expr",std::vector<std::string>{
         "Binary : Expr left, Token operator, Expr right",
         "Grouping : Expr expression",
         "Literal : Object value",
-        "Unary : Token operator, Expr right"
+        "Unary : Token operator, Expr right",
+        "Variable : Token name",
+        "Assign : Token name, Expr value"
+    });
+
+    generate_files(output_dir, "Stmt", std::vector<std::string>{
+       "Expression : Expr expression",
+       "Print : Expr expression",
+       "Var : Token name, Expr initializer",
+       "Block : std::vector<Stmt> statements"
     });
 }

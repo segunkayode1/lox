@@ -15,7 +15,8 @@ namespace lox{
             *data = *other.data;
             return *this;
         }
-        template<typename ... Args>
+
+        template<typename... Args>
         Box(Args&&... args): data(new T(std::forward<Args>(args)...)){}
 
         ~Box() = default;

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <iterator>
+#include <vector>
 
 #include "error.hpp"
 #include "scanner.hpp"
@@ -15,11 +16,11 @@ namespace {
 		auto tokens = scanner.scan_tokens();
 		if(lox::had_error) return;
 		auto parser  = lox::Parser(tokens);
-		auto ast = parser.parse();
-		
+		auto statements = parser.parse();
+		if(lox::had_error) return;
 		// std::cout << lox::Ast_Printer{}.print(ast) << '\n';
         static lox::Interpreter interpreter;
-		interpreter.interpret(ast);
+		interpreter.interpret(statements);
 	}
 
 	auto run_file(std::string const& path) -> void{

@@ -16,4 +16,11 @@ namespace lox{
     :m_operator{t_operator}
     ,m_right{t_right} {}
 
+    Variable::Variable(Token t_name)
+    :m_name{t_name} {}
+
+    Assign::Assign(Token t_name, Expr t_value)
+    :m_name{t_name}
+    ,m_value{t_value} {}
+
 };
