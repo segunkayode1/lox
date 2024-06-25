@@ -16,9 +16,9 @@ then build and run lox interpeter
 $ cmake --build . && ./lox
 ```
 
-finsished and implemented chapter 4.
-finsished and implemented chapter 5.
-finsihed  and implemented chapter 6.
-finsihed  and implemented chapter 7.
-finsihed  and implemented chapter 8.
-finsihed  and implemented chapter 9.
+finished and implemented chapter 4.
+finished and implemented chapter 5.
+finsihed and implemented chapter 6.
+finsihed and implemented chapter 7.
+finsihed and implemented chapter 8.
+finsihed and implemented chapter 9.
