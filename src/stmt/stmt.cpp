@@ -23,4 +23,13 @@ namespace lox{
     :m_condition{t_condition}
     ,m_body{t_body} {}
 
+    Function::Function(Token t_name, std::vector<Token> t_params, std::vector<Stmt> t_body)
+    :m_name{t_name}
+    ,m_params{t_params}
+    ,m_body{t_body} {}
+
+    Return::Return(Token t_keyword, Expr t_expression)
+    :m_keyword{t_keyword}
+    ,m_expression{t_expression} {}
+
 };

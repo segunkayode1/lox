@@ -1,1 +1,1 @@
-target_sources(lox PUBLIC expr.cpp ast_printer.cpp)
+target_sources(lox PUBLIC expr.cpp)

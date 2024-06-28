@@ -7,7 +7,6 @@
 #include "error.hpp"
 #include "scanner.hpp"
 #include "parser.hpp"
-#include "ast_printer.hpp"
 #include "interpreter.hpp"
 
 namespace {

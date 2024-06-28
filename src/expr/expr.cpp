@@ -28,4 +28,9 @@ namespace lox{
     ,m_operator{t_operator}
     ,m_right{t_right} {}
 
+    Call::Call(Expr t_callee, Token t_paren, std::vector<Expr> t_arguments)
+    :m_callee{t_callee}
+    ,m_paren{t_paren}
+    ,m_arguments{t_arguments} {}
+
 };

@@ -172,7 +172,7 @@ namespace lox{
     const std::unordered_map<std::string, Token_Type> Scanner::keywords = build_map();
 
     auto Scanner::indentifier() -> void{
-        while(isalnum(peek())) advance();
+        while(isalphnum(peek())) advance();
 
         auto text = m_source.substr(m_start, m_current - m_start);
         if(keywords.contains(text)){

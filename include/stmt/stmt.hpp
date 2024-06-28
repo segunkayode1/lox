@@ -16,13 +16,17 @@ namespace lox {
     struct Block;
     struct If;
     struct While;
+    struct Function;
+    struct Return;
     using Stmt = std::variant<Stmt_Monostate
                              ,Box<Expression>
                              ,Box<Print>
                              ,Box<Var>
                              ,Box<Block>
                              ,Box<If>
-                             ,Box<While>>;
+                             ,Box<While>
+                             ,Box<Function>
+                             ,Box<Return>>;
     struct Stmt_Monostate : public std::monostate{
         using std::monostate::monostate;
     };
@@ -59,6 +63,19 @@ namespace lox {
         While(Expr t_condition, Stmt t_body);
         Expr m_condition;
         Stmt m_body;
+    };
+
+    struct Function {
+        Function(Token t_name, std::vector<Token> t_params, std::vector<Stmt> t_body);
+        Token m_name;
+        std::vector<Token> m_params;
+        std::vector<Stmt> m_body;
+    };
+
+    struct Return {
+        Return(Token t_keyword, Expr t_expression);
+        Token m_keyword;
+        Expr m_expression;
     };
 
 };

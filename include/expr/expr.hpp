@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <variant>
+#include <vector>
 
 namespace lox {
     struct Expr_Monostate;
@@ -15,6 +16,7 @@ namespace lox {
     struct Variable;
     struct Assign;
     struct Logical;
+    struct Call;
     using Expr = std::variant<Expr_Monostate
                              ,Box<Binary>
                              ,Box<Grouping>
@@ -22,7 +24,8 @@ namespace lox {
                              ,Box<Unary>
                              ,Box<Variable>
                              ,Box<Assign>
-                             ,Box<Logical>>;
+                             ,Box<Logical>
+                             ,Box<Call>>;
     struct Expr_Monostate : public std::monostate{
         using std::monostate::monostate;
     };
@@ -66,6 +69,13 @@ namespace lox {
         Expr m_left;
         Token m_operator;
         Expr m_right;
+    };
+
+    struct Call {
+        Call(Expr t_callee, Token t_paren, std::vector<Expr> t_arguments);
+        Expr m_callee;
+        Token m_paren;
+        std::vector<Expr> m_arguments;
     };
 
 };

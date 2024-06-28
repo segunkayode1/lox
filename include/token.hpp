@@ -2,14 +2,15 @@
 #define LOX_TOKEN_HPP
 
 #include <string>
-#include <variant>
 
 #include "token_type.hpp"
+#include "object.hpp"
+
 namespace lox{
-    using Object = std::variant<std::monostate, double,bool,std::string>;
     class Token{    
         public:
         Token(Token_Type t_type, std::string const& t_lexume, Object const& t_literal, int t_line );
+        Token() = default;
         auto to_string() const -> std::string;
 
         auto get_token_type() const -> Token_Type;

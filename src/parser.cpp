@@ -141,7 +141,30 @@ namespace lox{
             return Box<Unary>{op, right};
         }
 
-        return primary();
+        return call();
+    }
+
+    auto Parser::call() -> Expr{
+        auto expr = primary();
+        if(match(Token_Type::LEFT_PAREN)){
+            if(match(Token_Type::RIGHT_PAREN)){
+                return Box<Call>{expr,Token{}, std::vector<Expr>{}};
+            }
+
+            auto expressions = std::vector<Expr>{expression()};
+
+            while(match(Token_Type::COMMA)){
+                if(expressions.size() >= 255){
+                    error(peek(), "Can't have more than 255 arguments");
+                }
+                expressions.push_back(expression());
+            }
+
+            auto token = consume(Token_Type::RIGHT_PAREN, "Expected ')' after function arguments");
+
+            return Box<Call>{expr, token, expressions};
+        }
+        return expr;
     }
     auto Parser::primary() -> Expr{
         using enum Token_Type;
@@ -186,8 +209,9 @@ namespace lox{
         if(match(Token_Type::FOR)) return for_statement();
         if(match(Token_Type::IF)) return if_statement();
         if(match(Token_Type::PRINT)) return print_statement();
+        if(match(Token_Type::RETURN)) return return_statement();
         if(match(Token_Type::WHILE)) return while_statement();
-        if(match(Token_Type::LEFT_BRACE))return block_statement();
+        if(match(Token_Type::LEFT_BRACE))return Box<Block>{block_statement()};
 
         return expression_statement();
     }
@@ -223,6 +247,9 @@ namespace lox{
             if(match(Token_Type::VAR)){
                 return var_declaration();
             }
+            if(match(Token_Type::FUN)){
+                return function("function");
+            }
             return statement();
         }catch(Parser_Error err){
             synchronize();
@@ -255,13 +282,13 @@ namespace lox{
         }
     }
 
-    auto Parser::block_statement() -> Stmt{
-        std::vector<Stmt> statements;
+    auto Parser::block_statement() -> std::vector<Stmt>{
+        auto statements = std::vector<Stmt>{};
         while(not is_at_end() and not check(Token_Type::RIGHT_BRACE)){
             statements.push_back(declaration());
         }
         consume(Token_Type::RIGHT_BRACE, "Expected '}' after block");
-        return Box<Block>{statements};
+        return statements;
     }
 
     auto Parser::if_statement() -> Stmt{
@@ -336,6 +363,45 @@ namespace lox{
         return body;
     }
 
+    auto Parser::return_statement() -> Stmt{
+        auto token = previous();
+        if(match(Token_Type::SEMICOLON)){
+            return Box<Return>{token, Expr{}};
+        }
+
+        auto expr = expression();
+
+        consume(Token_Type::SEMICOLON, "Expected ';' after return");
+
+        return Box<Return>{token, expr};
+    }
+
+    auto Parser::function(std::string const& kind) -> Stmt{
+        auto  name = consume(Token_Type::IDENTIFIER, "Expected " + kind + " name");
+        consume(Token_Type::LEFT_PAREN, "Expected '(' after " + kind + " name." );
+        auto params = std::vector<Token>{};
+        if(not match(Token_Type::RIGHT_PAREN)){
+            auto first_param = consume(Token_Type::IDENTIFIER, "Expected paramater name");
+            params.push_back(first_param);
+
+            while(match(Token_Type::COMMA)){
+                if(params.size() >= 255){
+                    error(peek(), "Can't have more than 255 paramters");
+                }
+                auto param = consume(Token_Type::IDENTIFIER, "Expected paramter name" );
+                params.push_back(param);
+            }
+
+             consume(Token_Type::RIGHT_PAREN, "Expected ')' after " + kind + " arguments.");
+        }
+        
+        consume(Token_Type::LEFT_BRACE, "Expected '{' before " + kind + " body.");
+
+        auto body = block_statement();
+
+        return Box<Function>{name, params, body};
+    }
+
 
     auto Parser::parse() -> std::vector<Stmt>{
         auto statements = std::vector<Stmt>{};
@@ -344,6 +410,7 @@ namespace lox{
         }
         return statements;
     }
+    
     
     
 };

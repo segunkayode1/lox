@@ -3,7 +3,7 @@
 
 namespace lox{
     
-    Enviroment::Enviroment(std::unique_ptr<Enviroment> t_parent)
+    Enviroment::Enviroment(std::shared_ptr<Enviroment> t_parent)
     :m_parent{std::move(t_parent)} {}
 
     auto Enviroment::define(std::string const& name, Object const& value) -> void{
@@ -36,7 +36,11 @@ namespace lox{
         throw Runtime_Error{name, "Undefined Indentifier : '"+ name.get_lexume() +"'."};
     }
 
-     auto Enviroment::get_parent() -> std::unique_ptr<Enviroment>{
-        return std::move(m_parent);
+     auto Enviroment::get_parent() -> std::shared_ptr<Enviroment>&{
+        return m_parent;
      }
+
+    Enviroment::Enviroment(Enviroment const& env)
+    :m_parent{env.m_parent}
+    ,m_values{env.m_values}{}
 }

@@ -5,11 +5,15 @@
 #include "expr.hpp"
 #include "stmt.hpp"
 #include "enviroment.hpp"
+#include "object.hpp"
 
 namespace lox{
     struct Interpreter{
         Interpreter();
         auto interpret(std::vector<Stmt> statements) -> void;
+        auto get_enviroment() -> std::shared_ptr<Enviroment>&;
+        auto get_globals() -> std::shared_ptr<Enviroment>&;
+        auto execute_block(std::vector<Stmt> statments, std::shared_ptr<Enviroment> t_enviroment) -> void;
         auto evaluate(Expr expr) -> Object;
         auto execute(Stmt stmt) -> void;
         auto operator()(Expr_Monostate /*unused*/) -> Object;
@@ -27,8 +31,12 @@ namespace lox{
         auto operator()(Box<If>& stmt) -> void;
         auto operator()(Box<Logical>& expr) -> Object;
         auto operator()(Box<While>& stmt) -> void;
+        auto operator()(Box<Call>& expr) -> Object;
+        auto operator()(Box<Function>& stmt) -> void;
+        auto operator()(Box<Return>& stmt) -> void;
         private:
-        std::unique_ptr<Enviroment> enviroment;
+        std::shared_ptr<Enviroment> enviroment;
+        std::shared_ptr<Enviroment>& globals;
     };
 };
 

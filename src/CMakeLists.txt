@@ -1,4 +1,4 @@
-add_executable(lox error.cpp parser.cpp scanner.cpp token.cpp main.cpp interpreter.cpp enviroment.cpp)
+add_executable(lox error.cpp parser.cpp scanner.cpp token.cpp main.cpp interpreter.cpp enviroment.cpp lox_callable.cpp object.cpp)
 
 add_subdirectory(expr)
 add_subdirectory(stmt)

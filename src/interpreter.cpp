@@ -1,10 +1,13 @@
 #include <variant>
 #include <iostream>
+#include <chrono>
 
 #include "interpreter.hpp"
+#include "lox_callable.hpp"
 #include "token.hpp"
 #include "error.hpp"
 #include "stmt.hpp"
+
 
 namespace lox{
 
@@ -22,6 +25,21 @@ namespace lox{
                 return std::to_string(static_cast<int>(d));
             }
             return std::to_string(d);
+        }
+
+        if(std::holds_alternative<Lox_Callable>(o)){
+            auto function = std::get<Lox_Callable>(o);
+            if(std::holds_alternative<Lox_Function>(function)){
+                 auto lox_function = std::get<Lox_Function>(function);
+                 auto declaration = std::any_cast<Box<Function>>(lox_function.m_declaration);
+                 return "<Fn " + declaration->m_name.get_lexume() + ">";
+            }
+
+            if(std::holds_alternative<Func>(function)){
+                auto func = std::get<Func>(function);
+                return "<Fn " + func.name + ">";
+            }
+
         }
 
         return "nil";
@@ -220,17 +238,25 @@ namespace lox{
         return value;
     }
 
-    auto Interpreter::operator()(Box<Block>& stmt) -> void{
-        enviroment = std::make_unique<Enviroment>(std::move(enviroment));
+     auto Interpreter::execute_block(std::vector<Stmt> statements, std::shared_ptr<Enviroment> t_enviroment) -> void{
+        t_enviroment->get_parent() = enviroment;
+        enviroment = t_enviroment;
         try{
-            for(auto statement: stmt->m_statements){
+            for(auto statement: statements){
                 execute(statement);
             }
         }catch (Runtime_Error& err){
             enviroment = enviroment->get_parent();
             throw err;
+        }catch(Object& o){
+            enviroment = enviroment->get_parent();
+            throw o;
         }
         enviroment = enviroment->get_parent();
+     }
+
+    auto Interpreter::operator()(Box<Block>& stmt) -> void{
+        execute_block(stmt->m_statements,  std::make_shared<Enviroment>());
     }
 
      auto Interpreter::operator()(Box<If>& stmt) -> void{
@@ -258,7 +284,54 @@ namespace lox{
     }
 
 
+    auto Interpreter::operator()(Box<Call>& expr) -> Object{
+        Object callee = evaluate(expr->m_callee);
+
+        std::vector<Object> arguments;
+        for(Expr argument: expr->m_arguments){
+            arguments.push_back(evaluate(argument));
+        }
+
+        if(not std::holds_alternative<Lox_Callable>(callee)){
+            throw Runtime_Error{expr->m_paren, "Can only call functions and classes."};
+        }
+        auto function = std::get<Lox_Callable>(callee);
+        if(auto arity = Arity{}.arity(function); arity !=  arguments.size()){
+            throw Runtime_Error(expr->m_paren, "Expected " +  std::to_string(arity) + " arguments but got " + std::to_string(arguments.size()));
+        }
+        return Caller{*this, arguments}.call(function);
+    }
+
+    auto Interpreter::operator()(Box<Function>& stmt) -> void{
+        auto function = Lox_Function{stmt, enviroment};
+        enviroment->define(stmt->m_name.get_lexume(), function);
+    }
+
+    auto Interpreter::operator()(Box<Return>& stmt) -> void{
+        throw evaluate(stmt->m_expression);
+    }
 
     Interpreter::Interpreter()
-    :enviroment{std::make_unique<Enviroment>()} {}
+    :enviroment{std::make_shared<Enviroment>()}
+    ,globals{enviroment} {
+        globals->define("clock", 
+        Func{
+        [](){
+            return 0;
+        }
+        ,[](auto& interpreter, auto& arguments){
+            using namespace std::chrono;
+            return static_cast<double>(duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
+        }
+        ,"clock"
+        });
+    }
+
+    auto Interpreter::get_enviroment() -> std::shared_ptr<Enviroment>&{
+        return enviroment;
+    }
+
+    auto Interpreter::get_globals() -> std::shared_ptr<Enviroment>&{
+        return globals;
+    }
 }

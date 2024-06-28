@@ -119,6 +119,7 @@ auto generate_files(std::string const& output_dir, std::string const& base_name,
                 "\n"
                 "#include <memory>\n"
                 "#include <variant>\n"
+                "#include <vector>\n"
                 "\n"
                 "namespace lox {\n";
     filehpp << "    struct "<< base_name << "_Monostate;\n";
@@ -159,7 +160,8 @@ auto main(int argc, char** argv) -> int {
         "Unary : Token operator, Expr right",
         "Variable : Token name",
         "Assign : Token name, Expr value",
-        "Logical : Expr left, Token operator, Expr right"
+        "Logical : Expr left, Token operator, Expr right",
+        "Call : Expr callee, Token paren, std::vector<Expr> arguments"
     });
 
     generate_files(output_dir, "Stmt", std::vector<std::string>{
@@ -169,6 +171,9 @@ auto main(int argc, char** argv) -> int {
        "Block : std::vector<Stmt> statements",
        "If : Expr condition, Stmt thenBranch," 
        " Stmt elseBranch",
-       "While : Expr condition, Stmt body"
+       "While : Expr condition, Stmt body",
+       "Function : Token name, std::vector<Token> params,"
+       " std::vector<Stmt> body",
+       "Return : Token keyword, Expr expression"
     });
 }

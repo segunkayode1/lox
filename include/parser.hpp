@@ -23,6 +23,7 @@ namespace lox{
         auto term() -> Expr;
         auto factor() -> Expr;
         auto unary() -> Expr;
+        auto call() -> Expr;
         auto primary() -> Expr;
 
 
@@ -47,11 +48,13 @@ namespace lox{
         auto while_statement() -> Stmt;
         auto for_statement() -> Stmt;
         auto expression_statement() -> Stmt;
-        auto block_statement() -> Stmt;
+        auto block_statement() -> std::vector<Stmt>;
         auto declaration() -> Stmt;
         auto var_declaration() -> Stmt;
         auto if_statement() -> Stmt;
         auto synchronize() -> void;
+        auto return_statement() -> Stmt;
+        auto function(std::string const& kind) -> Stmt;
     };
 };
 
