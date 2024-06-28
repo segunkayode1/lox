@@ -20,7 +20,7 @@ namespace lox {
 
     auto Lox_Function::call(Interpreter& interpreter, std::vector<Object>& arguments) -> Object{
         auto declaration =  std::any_cast<Box<Function>>(m_declaration);
-        auto enviroment = m_closure;
+        auto enviroment = std::make_shared<Enviroment>(m_closure);
         for(int i = 0; i < declaration->m_params.size(); i++){
             enviroment->define(declaration->m_params[i].get_lexume(), arguments[i] );
         }

@@ -4,7 +4,7 @@
 namespace lox{
     
     Enviroment::Enviroment(std::shared_ptr<Enviroment> t_parent)
-    :m_parent{std::move(t_parent)} {}
+    :m_parent{t_parent} {}
 
     auto Enviroment::define(std::string const& name, Object const& value) -> void{
         m_values[name] = value;
