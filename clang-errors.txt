@@ -1,0 +1,2 @@
+warning: invalid configuration value '-1' for option 'misc-throw-by-value-catch-by-reference.MaxSize'; expected an integer [clang-tidy-config]
+Built target clang-tidy

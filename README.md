@@ -22,4 +22,5 @@ finished and implemented chapter 6.
 finished and implemented chapter 7.  
 finished and implemented chapter 8.  
 finished and implemented chapter 9.  
-finished and implemented chapter 10.  
+finished and implemented chapter 10. 
+finished and implemented chapter 11.   
